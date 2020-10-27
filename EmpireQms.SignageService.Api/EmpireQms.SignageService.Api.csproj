@@ -1,0 +1,44 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Migrations\20200924063621_try.cs" />
+    <Compile Remove="Migrations\20200924063621_try.Designer.cs" />
+    <Compile Remove="Migrations\20200924063830_try.cs" />
+    <Compile Remove="Migrations\20200924063830_try.Designer.cs" />
+    <Compile Remove="Migrations\20200924064842_try.cs" />
+    <Compile Remove="Migrations\20200924064842_try.Designer.cs" />
+    <Compile Remove="Migrations\20200924065033_try.cs" />
+    <Compile Remove="Migrations\20200924065033_try.Designer.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Domain\CommandHandlers\" />
+    <Folder Include="Domain\Commands\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MediatR" Version="8.1.0" />
+    <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="8.1.0" />
+    <PackageReference Include="Microsoft.AspNetCore.SignalR.Core" Version="1.1.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.8" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.8" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="3.1.8">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.OpenApi" Version="1.2.3" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="5.6.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\EmpireQms.Domain.Core\EmpireQms.Domain.Core.csproj" />
+    <ProjectReference Include="..\EmpireQms.Infra.Bus\EmpireQms.Infra.Bus.csproj" />
+  </ItemGroup>
+
+
+</Project>

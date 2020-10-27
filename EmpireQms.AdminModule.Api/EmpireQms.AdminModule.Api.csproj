@@ -1,0 +1,45 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Migrations\20200912150622_ManyToManyRelationshipBetweenTcktCategoryAndTerminal.cs" />
+    <Compile Remove="Migrations\20200912150622_ManyToManyRelationshipBetweenTcktCategoryAndTerminal.Designer.cs" />
+    <Compile Remove="Migrations\20200912170335_try.cs" />
+    <Compile Remove="Migrations\20200912170335_try.Designer.cs" />
+    <Compile Remove="Migrations\20200912173001_try.cs" />
+    <Compile Remove="Migrations\20200912173001_try.Designer.cs" />
+    <Compile Remove="Migrations\20200913082918_AddedSignageModelAndRelationshipWithTerminal.cs" />
+    <Compile Remove="Migrations\20200913082918_AddedSignageModelAndRelationshipWithTerminal.Designer.cs" />
+    <Compile Remove="Migrations\20200913095227_try.cs" />
+    <Compile Remove="Migrations\20200913095227_try.Designer.cs" />
+    <Compile Remove="Migrations\20200921085425_try.cs" />
+    <Compile Remove="Migrations\20200921085425_try.Designer.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MediatR" Version="8.1.0" />
+    <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="8.1.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.1.8" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.8" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.8" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="3.1.8">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.OpenApi" Version="1.2.3" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="5.6.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\EmpireQms.Infra.Bus\EmpireQms.Infra.Bus.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Integration\EventHandlers\" />
+  </ItemGroup>
+
+
+</Project>
