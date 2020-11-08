@@ -16,6 +16,8 @@ namespace EmpireQms.AdminModule.Api.Persistence
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<Terminal>().Ignore(t => t.Status);
+
             modelBuilder.Entity<TerminalSignage>().ToTable("TerminalSignages");
             modelBuilder.Entity<TerminalSignage>().HasKey(sign => new { sign.TerminalId, sign.SignageId });
 
@@ -37,7 +39,6 @@ namespace EmpireQms.AdminModule.Api.Persistence
             .HasOne(tc => tc.TicketCategory)
             .WithMany(ticketCategory => ticketCategory.TerminalCategories).HasForeignKey(tc => tc.TicketCategoryId);
 
-           
             modelBuilder.Entity<TicketCategory>().HasData(
                 new TicketCategory
                 {
