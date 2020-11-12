@@ -13,7 +13,7 @@ namespace EmpireQms.Customer.Api.Controllers
     {
         private static readonly string[] Summaries = new[]
         {
-            "Freezing", "Chilly", "Cool","Warm", "Balmy", "Hot", "Sweltering", "Scorching"
+            "Freezing", "Chilly", "Cool","Warm", "Balmy", "Hot", "Sweltering", "Scorching","xxxxxxx"
         };
 
         private readonly ILogger<WeatherForecastController> _logger;
