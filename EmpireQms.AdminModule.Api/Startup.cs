@@ -1,9 +1,11 @@
 using EmpireQms.AdminModule.Api.Domain;
 using EmpireQms.AdminModule.Api.Domain.CommandHandlers;
+using EmpireQms.AdminModule.Api.Domain.CommandHandlers.PrintTemplates;
 using EmpireQms.AdminModule.Api.Domain.CommandHandlers.Signages;
 using EmpireQms.AdminModule.Api.Domain.CommandHandlers.TerminalRelatedObjects;
 using EmpireQms.AdminModule.Api.Domain.CommandHandlers.Terminals;
 using EmpireQms.AdminModule.Api.Domain.Commands;
+using EmpireQms.AdminModule.Api.Domain.Commands.PrintTemplates;
 using EmpireQms.AdminModule.Api.Domain.Commands.Signages;
 using EmpireQms.AdminModule.Api.Domain.Commands.TerminalCategories;
 using EmpireQms.AdminModule.Api.Domain.Commands.TerminalRelatedObjects;
@@ -77,6 +79,8 @@ namespace EmpireQms.AdminModule.Api
 
             services.AddTransient<IRequestHandler<CreateTerminalSignageCommand, bool>, CreateTerminalSignageCommandHandler>();
             services.AddTransient<IRequestHandler<DeleteTerminalSignageCommand, bool>, DeleteTerminalSignageCommandHandler>();
+
+            services.AddTransient<IRequestHandler<CreatePrintTemplateCommand, bool>, CreatePrintTemplateCommandHandler>();
 
             services.AddTransient<IUnitOfWork, UnitOfWork>();
             services.AddTransient<ITicketCategoryRepository, TicketCategoryRepository>();
