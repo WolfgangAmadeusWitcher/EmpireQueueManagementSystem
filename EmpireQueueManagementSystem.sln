@@ -23,7 +23,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EmpireQms.Customer.Api", "E
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "_Commons", "_Commons", "{576A452F-7280-46F4-8AE9-EA34220DA57D}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EmpireQms.PrintService.Api", "..\..\Users\cfil\Desktop\Projects\EmpireQueueManagementSystem-master\EmpireQms.PrinterService.Api\EmpireQms.PrintService.Api.csproj", "{EE601367-0DBA-49AB-8B38-15C72B140342}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EmpireQms.PrintService.Api", "EmpireQms.PrinterService.Api\EmpireQms.PrintService.Api.csproj", "{EE601367-0DBA-49AB-8B38-15C72B140342}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
