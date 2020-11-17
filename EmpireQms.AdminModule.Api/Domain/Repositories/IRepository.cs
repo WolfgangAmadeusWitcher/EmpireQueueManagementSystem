@@ -14,4 +14,5 @@ namespace EmpireQms.AdminModule.Api.Domain.Repositories
         IEnumerable<TEntity> Find(Expression<Func<TEntity, bool>> predicate);
         Task<TEntity> SingleOrDefaultAsync(Expression<Func<TEntity, bool>> predicate);
     }
+
 }

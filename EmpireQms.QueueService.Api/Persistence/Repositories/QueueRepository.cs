@@ -6,7 +6,7 @@ namespace EmpireQms.QueueService.Api.Persistence.Repositories
 {
     public class QueueRepository : Repository<EmpireQueue>, IQueueRepository
     {
-        private QueueContext _queueContext;
+        private readonly QueueContext _queueContext;
 
         public QueueRepository(QueueContext context) : base(context, context.EmpireQueues)
         {

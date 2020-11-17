@@ -1,7 +1,6 @@
 ﻿using EmpireQms.AdminModule.Api.Domain.Models;
 using EmpireQms.AdminModule.Api.Domain.Repositories;
 using Microsoft.EntityFrameworkCore;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -9,7 +8,7 @@ namespace EmpireQms.AdminModule.Api.Persistence.Repositories
 {
     public class TerminalRepository : Repository<Terminal>, ITerminalRepository
     {
-        private SettingsContext _settingsContext;
+        private readonly SettingsContext _settingsContext;
         public TerminalRepository(SettingsContext context) : base(context, context.Terminals)
         {
             _settingsContext = context;
@@ -44,7 +43,7 @@ namespace EmpireQms.AdminModule.Api.Persistence.Repositories
             _settingsContext.SaveChanges();
         }
 
-        public void DeleteTeminalSignage(TerminalSignage terminalSignage)
+        public void DeleteTerminalSignage(TerminalSignage terminalSignage)
         {
             _settingsContext.TerminalSignages.Remove(terminalSignage);
             _settingsContext.SaveChanges();

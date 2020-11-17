@@ -8,6 +8,6 @@ namespace EmpireQms.AdminModule.Api.Domain.Repositories
         void CreateTerminalCategory(TerminalCategory terminalCategory);
         void DeleteTerminalCategory(TerminalCategory terminalCategory);
         void CreateTerminalSignage(TerminalSignage terminalSignage);
-        void DeleteTeminalSignage(TerminalSignage terminalSignage);
+        void DeleteTerminalSignage(TerminalSignage terminalSignage);
     }
 }

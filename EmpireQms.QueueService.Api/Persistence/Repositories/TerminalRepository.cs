@@ -5,7 +5,7 @@ namespace EmpireQms.QueueService.Api.Persistence.Repositories
 {
     public class TerminalRepository : Repository<Terminal>, ITerminalRepository
     {
-        private QueueContext _queueContext;
+        private readonly QueueContext _queueContext;
 
         public TerminalRepository(QueueContext context) : base(context, context.Terminals)
         {

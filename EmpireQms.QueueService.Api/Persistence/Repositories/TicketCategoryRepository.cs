@@ -5,7 +5,7 @@ namespace EmpireQms.QueueService.Api.Persistence.Repositories
 {
     public class TicketCategoryRepository : Repository<TicketCategory>, ITicketCategoryRepository
     {
-        private QueueContext _queueContext;
+        private readonly QueueContext _queueContext;
 
         public TicketCategoryRepository(QueueContext context) : base(context, context.TicketCategories)
         {

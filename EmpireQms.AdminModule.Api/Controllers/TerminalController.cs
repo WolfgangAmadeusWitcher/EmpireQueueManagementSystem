@@ -179,7 +179,7 @@ namespace EmpireQms.AdminModule.Api.Controllers
             }
             try
             {
-                _unitOfWork.Terminals.DeleteTeminalSignage(terminalSignage);
+                _unitOfWork.Terminals.DeleteTerminalSignage(terminalSignage);
 
                 var deleteTerminalSignage = new DeleteTerminalSignageCommand(terminalSignage);
                 _unitOfWork.SourceEvent(deleteTerminalSignage);
