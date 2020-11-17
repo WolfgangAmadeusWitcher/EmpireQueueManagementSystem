@@ -1,17 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.IO;
-using System.Text;
-using System.Text.Json;
+﻿using System.Drawing;
 using System.Text.Json.Serialization;
 
 namespace EmpireQms.PrintService.Api.Application.Models
 {
     public enum DataType
     {
-        str = 1,
-        pic = 2
+        Str = 1,
+        Pic = 2
     }
     public class Print
     {
@@ -25,9 +20,9 @@ namespace EmpireQms.PrintService.Api.Application.Models
         [JsonIgnore]
         public Image Image { get; set; }
 
-        public Print(string FontName, float FontSize)
+        public Print(string fontName, float fontSize)
         {
-            Font = new Font(FontName, FontSize);
+            Font = new Font(fontName, fontSize);
             StringFormat = new StringFormat() { Alignment = StringAlignment.Near };
         }
         public Print()

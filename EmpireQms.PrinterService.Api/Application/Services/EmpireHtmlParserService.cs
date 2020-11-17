@@ -5,14 +5,13 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace EmpireQms.PrintService.Api.Application.Services
 {
     public class EmpireHtmlParserService
     {
         private readonly string _documentHtml;
-        private FontStyle fontStyle;
+        private FontStyle _fontStyle;
         public EmpireHtmlParserService(string documentHtml)
         {
             _documentHtml = documentHtml;
@@ -20,128 +19,131 @@ namespace EmpireQms.PrintService.Api.Application.Services
 
         public List<Print> Parse()
         {
-            HtmlDocument htmlDocument = new HtmlDocument(_documentHtml);
+            var htmlDocument = new HtmlDocument(_documentHtml);
             htmlDocument.Parse();
 
-            List<Print> PrintList = new List<Print>();
-            foreach (var ChildNode in htmlDocument.RootNode.ChildNodes)
+            var printList = new List<Print>();
+            foreach (var childNode in htmlDocument.RootNode.ChildNodes)
             {
-                fontStyle = FontStyle.Regular;
-                Print printObject = new Print()
+                _fontStyle = FontStyle.Regular;
+                var printObject = new Print()
                 {
-                    Name =  ChildNode.InnerText.Replace("&nbsp;", " "),
+                    Name = childNode.InnerText.Replace("&nbsp;", " "),
                     DataType = 1
                 };
 
-                ConvertToPrintObject(ChildNode, printObject);
-                printObject.Font = new Font(printObject.Font, fontStyle);
-                PrintList.Add(printObject);
+                ConvertToPrintObject(childNode, printObject);
+                printObject.Font = new Font(printObject.Font, _fontStyle);
+                printList.Add(printObject);
 
-            };
+            }
 
-            return PrintList;
+            return printList;
         }
 
         private void ConvertToPrintObject(HtmlDocumentNode childNode, Print printObject)
         {
             if (childNode == null || printObject == null) return;
 
-            GetPrintPropertiesfromTags(childNode, printObject);
+            GetPrintPropertiesFromTags(childNode, printObject);
             GetPrintPropertiesFromAttributes(childNode, printObject);
 
             foreach (var item in childNode.ChildNodes)
                 ConvertToPrintObject(item, printObject);
-
         }
 
         private void GetPrintPropertiesFromAttributes(HtmlDocumentNode childNode, Print printObject)
         {
-            if (childNode.Attributes.Any(x => x.Name == "style"))
+            if (childNode.Attributes.All(x => x.Name != "style"))
+                return;
+            var styleAttribute = childNode.Attributes.Where(x => x.Name == "style").Select(x => x.Value).FirstOrDefault();
+            if (styleAttribute == null) return;
+
+            var styles = styleAttribute.Split(';').ToList();
+            styles.Remove("");
+            var count = 0;
+            foreach (var item in styles)
             {
-                string StyleAttribute = childNode.Attributes.FirstOrDefault(x => x.Name == "style").Value;
-                var Styles = StyleAttribute.Split(';').ToList();
-                Styles.Remove("");
-                int count = 0;
-                foreach (var item in Styles)
+
+                var style = item.Split(":");
+
+                if (style.Length == 2)
                 {
-
-                    string[] style = item.Split(":");
-
-                    if (style.Length == 2)
+                    switch (style[0].Trim())
                     {
-                        switch (style[0].Trim())
-                        {
-                            case "font-family":
-                                if (style[1].Trim() == "&quot")
+                        case "font-family":
+                            if (style[1].Trim() == "&quot")
+                            {
+                                if (styles.Count > count + 1)
                                 {
-                                    if (Styles.Count() > count + 1)
-                                    {
-                                        string fontname = Styles[count + 1].Replace("&quot", "");
-                                        printObject.Font = new Font(fontname, printObject.Font.Size, printObject.Font.Style);
-                                    }
+                                    var fontName = styles[count + 1].Replace("&quot", "");
+                                    printObject.Font = new Font(fontName, printObject.Font.Size, printObject.Font.Style);
                                 }
-                                else
-                                    printObject.Font = new Font(style[1].Trim(), printObject.Font.Size, printObject.Font.Style);
-                                break;
+                            }
+                            else
+                                printObject.Font = new Font(style[1].Trim(), printObject.Font.Size, printObject.Font.Style);
+                            break;
 
-                            case "font-size":
-                                printObject.Font = new Font(printObject.Font.Name, GetPixel(style[1].Trim()), printObject.Font.Style);
-                                break;
+                        case "font-size":
+                            printObject.Font = new Font(printObject.Font.Name, GetPixel(style[1].Trim()), printObject.Font.Style);
+                            break;
 
-                            case "font-weight":
-                                if (style[1].Trim() == "bolder")
-                                    fontStyle |= FontStyle.Bold;
-                                break;
+                        case "font-weight":
+                            if (style[1].Trim() == "bolder")
+                                _fontStyle |= FontStyle.Bold;
+                            break;
 
-                            case "text-align":
-                                if (style[1].Trim() == "center")
-                                    printObject.StringFormat.Alignment = StringAlignment.Center;
-                                else if (style[1].Trim() == "far")
-                                    printObject.StringFormat.Alignment = StringAlignment.Far;
+                        case "text-align":
+                            printObject.StringFormat.Alignment = style[1].Trim() switch
+                            {
+                                "center" => StringAlignment.Center,
+                                "right" => StringAlignment.Far,
+                                _ => StringAlignment.Near,
+                            };
+                            break;
 
-                                break;
-
-                            default:
-                                break;
-                        }
                     }
                 }
                 count++;
-
             }
+
         }
 
-        private void GetPrintPropertiesfromTags(HtmlDocumentNode childNode, Print printObject)
+        private void GetPrintPropertiesFromTags(HtmlDocumentNode childNode, Print printObject)
         {
             switch (childNode.Name)
             {
                 case "font":
                     if (childNode.Attributes.Any(x => x.Name == "face"))
                     {
-                        string fontName = childNode.Attributes.FirstOrDefault(x => x.Name == "face").Value;
+                        var fontName = childNode.Attributes.Where(x => x.Name == "face").Select(x => x.Value).FirstOrDefault();
+                        if (fontName == null) return;
                         printObject.Font = new Font(fontName, printObject.Font.Size, printObject.Font.Style);
-
                     }
                     if (childNode.Attributes.Any(x => x.Name == "size"))
                     {
-                        float fontSize = GetPixel(Convert.ToInt32(childNode.Attributes.FirstOrDefault(x => x.Name == "size").Value));
+                        var rowFontSize = childNode.Attributes.Where(x => x.Name == "size").Select(x => x.Value).FirstOrDefault();
+                        if (rowFontSize == null) return;
+                        var fontSize = GetPixel(Convert.ToInt32(rowFontSize));
                         printObject.Font = new Font(printObject.Font.Name, fontSize, printObject.Font.Style);
                     }
                     break;
                 case "b":
-                    fontStyle |= FontStyle.Bold;
+                    _fontStyle |= FontStyle.Bold;
                     break;
                 case "i":
-                    fontStyle |= FontStyle.Italic;
+                    _fontStyle |= FontStyle.Italic;
                     break;
                 case "u":
-                    fontStyle |= FontStyle.Underline;
+                    _fontStyle |= FontStyle.Underline;
                     break;
                 case "img":
                     if (childNode.Attributes.Any(x => x.Name == "src"))
                     {
-                        string imageStr = childNode.Attributes.FirstOrDefault(x => x.Name == "src").Value.Replace("data:image/png;base64,", "").Replace("data:image/jpeg;base64,", "").Replace("data:image/bmp;base64,", "");
-                        using MemoryStream ms = new MemoryStream(Convert.FromBase64String(imageStr));
+                        var imageRow = childNode.Attributes.Where(x => x.Name == "src").Select(x => x.Value).FirstOrDefault();
+                        if (imageRow == null) return;
+                        imageRow = imageRow.Replace("data:image/png;base64,", "").Replace("data:image/jpeg;base64,", "").Replace("data:image/bmp;base64,", "");
+                        using var ms = new MemoryStream(Convert.FromBase64String(imageRow));
                         printObject.Image = Image.FromStream(ms);
                         printObject.DataType = 2;
                     }
@@ -149,83 +151,50 @@ namespace EmpireQms.PrintService.Api.Application.Services
                 case "p":
                     if (childNode.Attributes.Any(x => x.Name == "style"))
                     {
-                        string justyfStyle = childNode.Attributes.FirstOrDefault(x => x.Name == "style").Value;
-
-                        if (justyfStyle.Contains("text-align: center;"))
+                        var justifyStyle = childNode.Attributes.Where(x => x.Name == "style").Select(x => x.Value)
+                            .FirstOrDefault();
+                        if (justifyStyle == null) return;
+                        if (justifyStyle.Contains("text-align: center;"))
                             printObject.StringFormat.Alignment = StringAlignment.Center;
-                        else if (justyfStyle.Contains("text-align: right;"))
+                        else if (justifyStyle.Contains("text-align: right;"))
                             printObject.StringFormat.Alignment = StringAlignment.Far;
 
                     }
-
-                    break;
-                default:
                     break;
             }
         }
 
-        private float GetPixel(int FontSize)
+        private static float GetPixel(int fontSize)
         {
-            float result = 10;
-            switch (FontSize)
+            var result = fontSize switch
             {
-                case 1:
-                    result = 8;
-                    break;
-                case 2:
-                    result = 10.5f;
-                    break;
-                case 3:
-                    result = 12.5f;
-                    break;
-                case 4:
-                    result = 14.2f;
-                    break;
-                case 5:
-                    result = 17.5f;
-                    break;
-                case 6:
-                    result = 24;
-                    break;
-                case 7:
-                    result = 34;
-                    break;
-                default:
-                    break;
-            }
+                1 => 8.3f,
+                2 => 10.5f,
+                3 => 13,
+                4 => 14.5f,
+                5 => 17.5f,
+                6 => 24,
+                7 => 34,
+                _ => 12,
+            };
 
             return result;
+
         }
 
-        private float GetPixel(string FontSize)
+        private static float GetPixel(string fontSize)
         {
-            float result = 10;
-            switch (FontSize.Trim())
+            var result = fontSize.Trim() switch
             {
-                case "x-small":
-                    result = 8.3f;
-                    break;
-                case "small":
-                    result = 10.5f;
-                    break;
-                case "medium":
-                    result = 13;
-                    break;
-                case "large":
-                    result = 14.5f;
-                    break;
-                case "x-large":
-                    result = 17.5f;
-                    break;
-                case "xx-large":
-                    result = 24;
-                    break;
-                case "xxx-large":
-                    result = 34;
-                    break;
-                default:
-                    break;
-            }
+                "x-small" => 8.3f,
+                "small" => 10.5f,
+                "medium" => 13,
+                "large" => 14.5f,
+                "x-large" => 17.5f,
+                "xx-large" => 24,
+                "xxx-large" => 34,
+                _ => 12,
+            };
 
             return result;
         }

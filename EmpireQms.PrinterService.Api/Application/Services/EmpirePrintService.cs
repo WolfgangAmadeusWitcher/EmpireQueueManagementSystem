@@ -1,101 +1,94 @@
 ﻿using EmpireQms.PrintService.Api.Application.Models;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Printing;
-using System.IO;
 using System.Linq;
-using System.Threading;
 
 namespace EmpireQms.PrintService.Api.Application.Services
 {
 
     public class EmpirePrintService
     {
-        PrintDocument PrintDocument;
+        private PrintDocument _printDocument;
 
-        List<Print> PrintObjects = null;
-        int PrintWidth = 220;
+        private readonly List<Print> _printObjects;
+        private const int PrintWidth = 220;
 
-        public EmpirePrintService(List<Print> _PrintObjects = null)
+        public EmpirePrintService(List<Print> printObjects = null)
         {
-            PrintObjects = _PrintObjects;
+            _printObjects = printObjects;
             Start();
         }
 
 
         private void Start()
         {
-            PrintDocument = new PrintDocument();
-            PrintDocument.DocumentName = new Random().NextDouble().ToString();
+            _printDocument = new PrintDocument();
             SetRealPositions();
-            PrintDocument.PrintPage += PrintDocument_PrintPage;
-            //PrintDocument.DefaultPageSettings.PaperSize = new PaperSize("MyPaper", PrintWidth, GetPageHeight());
-
-            PrintDocument.Print();
+            _printDocument.PrintPage += PrintDocument_PrintPage;
+            _printDocument.Print();
 
         }
 
         private void PrintDocument_PrintPage(object sender, PrintPageEventArgs e)
         {
-
-            foreach (var item in PrintObjects)
+            foreach (var item in _printObjects)
             {
-                float ObjectXPosition = 0;
+                float objectXPosition = 0;
 
-                ObjectXPosition = SetXStrartPositon(item, ObjectXPosition);
+                objectXPosition = SetXStartPosition(item, objectXPosition);
 
-                CreatePrintLines(e, item, ObjectXPosition);
+                CreatePrintLines(e, item, objectXPosition);
             }
             e.HasMorePages = false;
         }
 
-        private void CreatePrintLines(PrintPageEventArgs e, Print item, float ObjectXPosition)
+        private void CreatePrintLines(PrintPageEventArgs e, Print item, float objectXPosition)
         {
+            if (e?.Graphics == null) return;
             switch ((DataType)item.DataType)
             {
-                case DataType.str:
-                    string MainPrintingLine = item.Name;
-                    int RowWidth = PrintWidth;
+                case DataType.Str:
+                    var mainPrintingLine = item.Name;
+                    int rowWidth;
 
                     do
                     {
-                        SizeF TextSize = e.Graphics.MeasureString(MainPrintingLine, item.Font);
+                        var textSize = e.Graphics.MeasureString(mainPrintingLine, item.Font);
 
-                        RowWidth = Convert.ToInt32(TextSize.Width);
-                        int PrintCharCount = RowWidth == 0 ? 0 : MainPrintingLine.Length * PrintWidth / RowWidth;
-                        if (MainPrintingLine.Length <= PrintCharCount)
-                            PrintCharCount = MainPrintingLine.Length;
-                        string SubPrintingLine = MainPrintingLine.Substring(0, PrintCharCount);
-                        if (RowWidth > PrintWidth)
+                        rowWidth = Convert.ToInt32(textSize.Width);
+                        var printCharCount = rowWidth == 0 ? 0 : mainPrintingLine.Length * PrintWidth / rowWidth;
+                        if (mainPrintingLine.Length <= printCharCount)
+                            printCharCount = mainPrintingLine.Length;
+                        var subPrintingLine = mainPrintingLine.Substring(0, printCharCount);
+                        if (rowWidth > PrintWidth)
                         {
-                            if (SubPrintingLine.Contains(' '))
+                            if (subPrintingLine.Contains(' '))
                             {
-                                var test = SubPrintingLine.Split(" ");
-                                SubPrintingLine = SubPrintingLine.Remove(SubPrintingLine.Length - test.Last().Length, test.Last().Length);
+                                var test = subPrintingLine.Split(" ");
+                                subPrintingLine = subPrintingLine.Remove(subPrintingLine.Length - test.Last().Length, test.Last().Length);
 
                             }
-                            MainPrintingLine = MainPrintingLine.Remove(0, SubPrintingLine.Length);
+                            mainPrintingLine = mainPrintingLine.Remove(0, subPrintingLine.Length);
                         }
 
-                        e.Graphics.DrawString(SubPrintingLine, item.Font, Brushes.Black, new PointF(ObjectXPosition, item.RealFontSize), item.StringFormat);
-                        if (RowWidth > PrintWidth)
-                            PrintObjects.Select(x => x.RealFontSize += TextSize.Height).ToList();
+                        e.Graphics.DrawString(subPrintingLine, item.Font, Brushes.Black, new PointF(objectXPosition, item.RealFontSize), item.StringFormat);
+                        if (rowWidth > PrintWidth)
+                            _printObjects.ForEach(x => x.RealFontSize += textSize.Height);
 
-                    } while (RowWidth > PrintWidth);
+                    } while (rowWidth > PrintWidth);
 
                     break;
-                case DataType.pic:
+                case DataType.Pic:
                     if (item.Image != null)
-                        e.Graphics.DrawImage(item.Image, new Point(Convert.ToInt32(ObjectXPosition), Convert.ToInt32(item.RealFontSize)));
+                        e.Graphics.DrawImage(item.Image, new Point(Convert.ToInt32(objectXPosition), Convert.ToInt32(item.RealFontSize)));
                     break;
-                default:
-                    break;
+
             }
         }
 
-        private float SetXStrartPositon(Print item, float ObjectXPosition)
+        private static float SetXStartPosition(Print item, float objectXPosition)
         {
             switch (item.StringFormat.Alignment)
             {
@@ -103,142 +96,56 @@ namespace EmpireQms.PrintService.Api.Application.Services
                     if (item.DataType == 2)
                     {
                         if (item.Image != null)
-                            ObjectXPosition = (PrintWidth - 15) / 2 - item.Image.Width / 2;
+                            objectXPosition = (PrintWidth - 15) / 2 - item.Image.Width / 2;
                     }
                     else
-                        ObjectXPosition = PrintWidth / 2;
+                        objectXPosition = (float)PrintWidth / 2;
 
                     break;
                 case StringAlignment.Far:
                     if (item.DataType == 2)
                     {
                         if (item.Image != null)
-                            ObjectXPosition = PrintWidth - 15 - item.Image.Width;
+                            objectXPosition = PrintWidth - 15 - item.Image.Width;
                     }
                     else
-                        ObjectXPosition = PrintWidth;
+                        objectXPosition = PrintWidth;
                     break;
-                default:
-                    break;
+
             }
 
-            return ObjectXPosition;
+            return objectXPosition;
         }
 
         private void SetRealPositions()
         {
-
-            if (PrintObjects == null || PrintObjects.Count() < 1)
+            if (_printObjects == null || !_printObjects.Any())
                 return;
 
-            for (int i = 0; i < PrintObjects.Count(); i++)
+            for (var i = 0; i < _printObjects.Count; i++)
             {
-                if (i + 1 < PrintObjects.Count())
-                    switch ((DataType)PrintObjects[i].DataType)
+                if (i + 1 < _printObjects.Count)
+
+                    _printObjects[i + 1].RealFontSize = (DataType)_printObjects[i].DataType switch
                     {
-                        case DataType.str:
-                            PrintObjects[i + 1].RealFontSize = PrintObjects[i].RealFontSize + PrintObjects[i].Font.Height;
-                            break;
-                        case DataType.pic:
-                            PrintObjects[i + 1].RealFontSize = PrintObjects[i].RealFontSize + (PrintObjects[i].Image == null ? 0 : PrintObjects[i].Image.Height);
-                            break;
-                        default:
-                            break;
-                    }
+                        DataType.Str => _printObjects[i].RealFontSize + _printObjects[i].Font.Height,
+                        DataType.Pic =>3+ _printObjects[i].RealFontSize + (_printObjects[i].Image == null ? 0 : _printObjects[i].Image.Height),
+                        _ => _printObjects[i].RealFontSize,
+                    };
+
+                //    switch ((DataType)_printObjects[i].DataType)
+                //{
+                //    case DataType.Str:
+                //        _printObjects[i + 1].RealFontSize = _printObjects[i].RealFontSize + _printObjects[i].Font.Height;
+                //        break;
+                //    case DataType.Pic:
+                //        _printObjects[i + 1].RealFontSize = _printObjects[i].RealFontSize + (_printObjects[i].Image == null ? 0 : _printObjects[i].Image.Height);
+                //        break;
+
+                //}
             }
         }
 
-
-
-
-
-        private void Test1()
-        {
-            //_file = File.Open("/dev/usb/lp0", FileMode.Open);
-
-            while (true)
-            {
-
-                Process cmd = new Process();
-                cmd.StartInfo.FileName = "/bin/bash";
-                cmd.StartInfo.RedirectStandardInput = true;
-                cmd.StartInfo.RedirectStandardOutput = true;
-                cmd.StartInfo.CreateNoWindow = true;
-                cmd.StartInfo.UseShellExecute = false;
-                cmd.Start();
-
-                cmd.StandardInput.WriteLine("lpstat -R");
-                cmd.StandardInput.Flush();
-                cmd.StandardInput.Close();
-                cmd.WaitForExit();
-                Console.WriteLine("\n" + cmd.StandardOutput.ReadToEnd());
-
-                Thread.Sleep(3000);
-            }
-
-        }
-        private void Test2()
-        {
-            //PrintQueueCollection printQueues = null;
-            //// Get a list of available printers.
-            //try
-            //{
-            //    PrintServer printServer = new PrintServer();
-            //    printQueues = printServer.GetPrintQueues(new[] { EnumeratedPrintQueueTypes.Local });
-            //    PrintQueue printQueue1 = printQueues.FirstOrDefault(x => x.Name == "SANEI SK1-21S-UNI-US");
-            //        printQueue1.Refresh();
-            //    if (printQueue1 == null) return;
-
-            //    while (true)
-            //    {
-
-            //        var deneme = printQueue1.GetPrintJobInfoCollection();
-
-            //        if (printQueue1.QueueStatus != laststatus)
-            //        {
-            //            Console.WriteLine("\n" + printQueue1.QueueStatus.ToString());
-            //            laststatus = printQueue1.QueueStatus;
-
-            //        }
-
-
-
-
-            //        foreach (var item in deneme)
-            //        {
-            //            Console.WriteLine(item.JobIdentifier + " " + item.JobName);
-            //        }
-            //        Thread.Sleep(300);
-            //    }
-            //}
-            //catch (Exception e)
-            //{
-            //    Console.WriteLine(e.ToString());
-            //}
-
-        }
-        private int GetPageHeight()
-        {
-            int result = 0;
-            if (PrintObjects == null || PrintObjects.Count() < 1)
-                return 0;
-
-            Print LastObjest = PrintObjects[PrintObjects.Count() - 1];
-            switch ((DataType)LastObjest.DataType)
-            {
-                case DataType.str:
-                    result = Convert.ToInt32(LastObjest.RealFontSize) + LastObjest.Font.Height;
-                    break;
-                case DataType.pic:
-                    result = Convert.ToInt32(LastObjest.RealFontSize) + (LastObjest.Image == null ? 0 : LastObjest.Image.Height);
-                    break;
-                default:
-                    break;
-            }
-
-            return result;
-        }
     }
-
 
 }
