@@ -74,6 +74,7 @@ namespace EmpireQms.PrintService.Api.Application.Services
                         }
 
                         e.Graphics.DrawString(subPrintingLine, item.Font, Brushes.Black, new PointF(objectXPosition, item.RealFontSize), item.StringFormat);
+
                         if (rowWidth > PrintWidth)
                             _printObjects.ForEach(x => x.RealFontSize += textSize.Height);
 
@@ -132,17 +133,6 @@ namespace EmpireQms.PrintService.Api.Application.Services
                         DataType.Pic =>3+ _printObjects[i].RealFontSize + (_printObjects[i].Image == null ? 0 : _printObjects[i].Image.Height),
                         _ => _printObjects[i].RealFontSize,
                     };
-
-                //    switch ((DataType)_printObjects[i].DataType)
-                //{
-                //    case DataType.Str:
-                //        _printObjects[i + 1].RealFontSize = _printObjects[i].RealFontSize + _printObjects[i].Font.Height;
-                //        break;
-                //    case DataType.Pic:
-                //        _printObjects[i + 1].RealFontSize = _printObjects[i].RealFontSize + (_printObjects[i].Image == null ? 0 : _printObjects[i].Image.Height);
-                //        break;
-
-                //}
             }
         }
 

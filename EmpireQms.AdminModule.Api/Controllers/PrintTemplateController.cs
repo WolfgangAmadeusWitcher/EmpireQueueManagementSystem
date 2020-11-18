@@ -21,8 +21,8 @@ namespace EmpireQms.AdminModule.Api.Controllers
         }
 
         [HttpPost]
-        [Route("SendPrintTemplate")]
-        public ActionResult<PrintTemplate> SendPrintTemplate([FromBody] PrintTemplate printTemplate)
+        [Route("CreateTemplate")]
+        public ActionResult<PrintTemplate> CreateTemplate([FromBody] PrintTemplate printTemplate)
         {
             if (!ModelState.IsValid)
             {
